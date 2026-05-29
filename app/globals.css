@@ -1,26 +1,638 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/Satoshi-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --base-100: #fff;
+  --base-200: #3a3a3a;
+  --base-300: #0f0f0f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Reset Defaults */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--base-300);
+  font-family: "Satoshi", sans-serif;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Crucial for Lenis Smooth Scroll to work without jank */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Custom utility classes if needed */
+.clip-in {
+  clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0% 100%);
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preloader-counter h1,
+.card h1,
+.next-section h1 {
+  font-family: "Satoshi", sans-serif;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.preloader-counter h1 {
+  font-size: clamp(3.5rem, 38cqi, 6rem);
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+  will-change: clip-path;
+  contain: paint;
+  z-index: -1;
+}
+
+.hero-bg img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  object-position: 50%;
+  transform: translate(-50%, -50%) scale(1.72);
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: #000;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.card {
+  --card-base-w: 368;
+  --card-base-h: 527;
+  --card-width: clamp(360px, 25vw, 460px);
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--card-width);
+  aspect-ratio: 368 / 527;
+  max-width: var(--card-base-w);
+  max-height: var(--card-base-h);
+  padding: calc(var(--card-width) * 0.05);
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+  color: #fff;
+  clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  z-index: 5;
+  container-type: inline-size;
+  contain: layout paint;
+  will-change: clip-path;
+}
+
+.card-top-left {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: calc(var(--card-width) * 0.02);
+}
+
+.card-bottom-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.card h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2.5rem, 24cqi, 6rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+}
+
+.card-bottom-right h1 {
+  font-size: clamp(3.5rem, 38cqi, 9rem);
+  line-height: 0.85;
+}
+
+.card .label {
+  color: gray;
+  font-size: clamp(0.5rem, 6cqi, 0.95rem);
+  font-weight: 500;
+  line-height: 1;
+  margin-top: 0;
+  margin-left: 0.3em;
+  margin-bottom: 0.3em;
+  text-transform: none;
+}
+
+.card-bottom-right .label {
+  margin-bottom: -0.25rem;
+  z-index: 1;
+}
+
+.card-reveal-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, clip-path, opacity;
+  contain: paint;
+  transform: translateZ(0);
+}
+
+.progress-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3.5px;
+  background-color: var(--base-200);
+  transform-origin: left;
+  transform: scaleX(0);
+  will-change: transform;
+  overflow: hidden;
+  z-index: 8;
+}
+
+.progress-bar .progress {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--base-100);
+  transform-origin: left;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+.scroll-down {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  margin: 0;
+  padding: 0;
+  color: #fff;
+  font-family: "Satoshi", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1;
+  mix-blend-mode: exclusion;
+  opacity: 0.5;
+  z-index: 99998;
+  pointer-events: none;
+  display: none;
+}
+
+.block-revealer {
+  display: inline-flex;
+  position: relative;
+  will-change: background-color, opacity;
+  opacity: 0;
+  white-space: pre;
+  line-height: 1;
+}
+
+.block-revealer > span {
+  position: relative;
+  opacity: 0;
+  display: inline-block;
+}
+
+@media (max-width: 850px) {
+  .hero .card {
+    --card-width: clamp(200px, 60vw, 300px);
+    max-width: 300px;
+    max-height: none;
+  }
+
+  .hero .card .label {
+    font-size: max(13.5px, clamp(0.4rem, 2cqi, 0.6rem));
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (max-width: 600px) {
+  .hero .card {
+    --card-width: clamp(12.5rem, 70vw, 18rem);
+    max-width: 18rem;
+  }
+}
+
+.next-section {
+  position: relative;
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  z-index: 10;
+}
+
+.manifesto {
+  --manifesto-preview-width: clamp(360px, 25vw, 460px);
+  --manifesto-spacer-height: 150vh;
+  position: relative;
+  width: 100%;
+  font-family: "Satoshi", sans-serif;
+  background: #000;
+  color: #fff;
+}
+
+.manifesto__previews {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+}
+
+.manifesto__preview {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--manifesto-preview-width);
+  aspect-ratio: 368 / 527;
+  transform: translate(-50%, -50%);
+  clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  overflow: hidden;
+  contain: paint;
+  will-change: clip-path, transform;
+  transform: translate(-50%, -50%) translateZ(0);
+}
+
+.manifesto__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.manifesto__slide {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  padding: 2em;
+  overflow: visible;
+  z-index: 5;
+  background: transparent;
+}
+
+.manifesto__slide--1 {
+  margin-top: -210vh;
+}
+
+.manifesto__slide--last {
+  height: 0;
+  min-height: 0;
+  padding: 0;
+}
+
+.manifesto__slide--last .manifesto__copy {
+  height: 100vh;
+  padding: 2em;
+}
+
+.manifesto__copy {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.manifesto .manifesto__text {
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 20cqi, 3.5rem);
+  line-height: 105%;
+  letter-spacing: -0.02em;
+  width: fit-content;
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.manifesto__text--left {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.manifesto__text--center {
+  text-align: center;
+  font-size: clamp(2.5rem, 10vw, 6rem);
+}
+
+.manifesto__word {
+  display: inline-block;
+  position: relative;
+  margin-right: 0;
+  margin-bottom: 0.2rem;
+  padding: 0.1rem 0.1em;
+  opacity: 0;
+  will-change: opacity, background-color;
+}
+
+.manifesto__word span {
+  position: relative;
+  opacity: 0;
+}
+
+.manifesto__spacer {
+  height: var(--manifesto-spacer-height);
+  width: 100%;
+  pointer-events: none;
+  position: relative;
+  background: transparent;
+}
+
+@media (max-width: 850px) {
+  .manifesto__previews {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100svh;
+  }
+
+  .manifesto__preview {
+    width: clamp(17.5rem, 75vw, 22.5rem);
+  }
+
+  .manifesto .manifesto__text {
+    font-size: clamp(1.75rem, 10vw, 2.5rem);
+  }
+
+  .manifesto__text--left {
+    white-space: normal;
+  }
+
+  .manifesto__text--center {
+    font-size: clamp(2rem, 10vw, 4rem);
+  }
+
+  .manifesto__spacer {
+    height: 130vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .manifesto__preview {
+    width: clamp(13.75rem, 85vw, 17.5rem);
+  }
+
+  .manifesto .manifesto__text {
+    font-size: clamp(1.5rem, 10vw, 3rem);
+  }
+
+  .manifesto__text--center {
+    font-size: clamp(1.75rem, 10vw, 3.5rem);
+  }
+
+  .manifesto__spacer {
+    height: 120vh;
+  }
+}
+
+.slider {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.slider-images {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.slide-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.slide-inner {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.slide-inner img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slider-title {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  width: 50%;
+  color: #fff;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.slider-title h1 {
+  font-family: "Satoshi", sans-serif;
+  font-size: 5rem;
+  font-weight: 700;
+  letter-spacing: -0.1rem;
+  line-height: 1.2;
+}
+
+.slider-indicator {
+  --indicator-gap: 2rem;
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--indicator-gap);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.slider-indices-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.slider-progress-bar {
+  position: relative;
+  width: 2px;
+  height: 100px;
+  background-color: #ffffff33;
+  flex-shrink: 0;
+}
+
+.slider-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background-color: #fff;
+  transform-origin: top;
+  transform: scaleY(0);
+}
+
+.slider-indices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.slider-indices p {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #fff;
+  font-family: "Satoshi", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1;
+  letter-spacing: -0.01rem;
+}
+
+.index-number {
+  min-width: 0.5rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.index-label {
+  white-space: nowrap;
+  transform-origin: left center;
+  will-change: opacity, transform;
+}
+
+.current-number {
+  min-width: 2ch;
+  display: inline-block;
+  color: #fff;
+  font-size: 7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  text-align: right;
+}
+
+@media (max-width: 850px) {
+  .slider-title {
+    top: unset;
+    bottom: 2rem;
+    left: 1rem;
+    transform: none;
+    width: auto;
+  }
+
+  .slider-title h1 {
+    font-size: 4rem;
+    letter-spacing: 0;
+  }
+
+  .slider-indicator {
+    --indicator-gap: 0.4rem;
+    top: unset;
+    right: 2rem;
+    bottom: 2rem;
+    transform: none;
+  }
+
+  .slider-number {
+    display: none;
+  }
+
+  .slider-indices p {
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .slider-title h1 {
+    font-size: 3.7rem;
+    letter-spacing: -0.06rem;
+  }
 }
