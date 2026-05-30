@@ -11,10 +11,12 @@ const slides = [
 
 export default function Slider() {
   const sectionRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const container = containerRef.current;
+    if (!section || !container) return;
 
     const ctx = gsap.context(() => {
       const wrappers = gsap.utils.toArray<HTMLElement>(".slide-wrapper");
@@ -39,13 +41,13 @@ export default function Slider() {
 
           gsap.to(wrapper, {
             yPercent: isActive ? 0 : wrapperIndex < index ? -100 : 100,
-            duration: 1.1,
+            duration: 0.25,
             ease: "power4.out",
             overwrite: true,
           });
           gsap.to(inner, {
             yPercent: isActive ? 0 : wrapperIndex < index ? 100 : -100,
-            duration: 1.1,
+            duration: 0.25,
             ease: "power4.out",
             overwrite: true,
           });
@@ -85,11 +87,11 @@ export default function Slider() {
 
       let current = 0;
       ScrollTrigger.create({
-        trigger: section,
+        trigger: container,
         start: "top top",
         end: () => `+=${window.innerHeight * slides.length}`,
-        pin: true,
-        scrub: 0.15,
+        pin: section,
+        pinSpacing: false,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           const next = Math.min(
@@ -100,57 +102,77 @@ export default function Slider() {
             current = next;
             setSlide(current);
           }
-          gsap.set(progress, { scaleY: self.progress });
+          if (progress) progress.style.transform = `scaleY(${self.progress})`;
+
+          if (self.progress > 0.85) {
+            const fade = (self.progress - 0.85) / 0.15;
+            section.style.opacity = String(1 - Math.min(1, fade));
+          } else {
+            section.style.opacity = "1";
+          }
         },
       });
-    }, section);
+    }, container);
 
     return () => ctx.revert();
   }, []);
 
+  const scrollHeight =
+    typeof window !== "undefined" ? window.innerHeight * slides.length : 3000;
+
   return (
-    <section ref={sectionRef} className="slider" id="slider-section">
-      <div className="slider-images" id="slider-images">
-        {slides.map((slide, index) => (
-          <div
-            key={slide.title}
-            className={`slide-wrapper ${index === 0 ? "active" : ""}`}
-            data-slide-index={index}
-          >
-            <div className="slide-inner">
-              <img src={slide.image} alt={slide.title} />
+    <div
+      ref={containerRef}
+      style={{ position: "relative", height: `${scrollHeight}px` }}
+    >
+      <section
+        ref={sectionRef}
+        className="slider"
+        id="slider-section"
+        style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
+      >
+        <div className="slider-images" id="slider-images">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.title}
+              className={`slide-wrapper ${index === 0 ? "active" : ""}`}
+              data-slide-index={index}
+            >
+              <div className="slide-inner">
+                <img src={slide.image} alt={slide.title} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="slider-title" id="slider-title">
+          <h1>{slides[0].title}</h1>
+        </div>
+
+        <div className="slider-indicator" id="slider-indicator">
+          <div className="slider-indices-wrapper" id="slider-indices-wrapper">
+            <div className="slider-progress-bar" id="slider-progress-bar-container">
+              <div className="slider-progress" id="slider-progress-bar" />
+            </div>
+            <div className="slider-indices" id="slider-indices">
+              {slides.map((slide, index) => (
+                <p key={slide.title}>
+                  <span className="index-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="index-label">{slide.title}</span>
+                </p>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
 
-      <div className="slider-title" id="slider-title">
-        <h1>{slides[0].title}</h1>
-      </div>
-
-      <div className="slider-indicator" id="slider-indicator">
-        <div className="slider-indices-wrapper" id="slider-indices-wrapper">
-          <div className="slider-progress-bar" id="slider-progress-bar-container">
-            <div className="slider-progress" id="slider-progress-bar" />
-          </div>
-          <div className="slider-indices" id="slider-indices">
-            {slides.map((slide, index) => (
-              <p key={slide.title}>
-                <span className="index-number">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="index-label">{slide.title}</span>
-              </p>
-            ))}
+          <div className="slider-number" id="slider-number">
+            <span className="current-number" id="current-number">
+              01
+            </span>
           </div>
         </div>
-
-        <div className="slider-number" id="slider-number">
-          <span className="current-number" id="current-number">
-            01
-          </span>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

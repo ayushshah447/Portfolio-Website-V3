@@ -11,11 +11,12 @@ interface NavbarProps {
 
 export default function Navbar({ isOpen, setIsOpen }: NavbarProps) {
   const { isIntroComplete } = useIntro(); // Get state from context
+  console.log("Navbar:", isIntroComplete);
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-40 mix-blend-difference px-8 py-6 flex justify-between items-center text-white transition-opacity duration-700 ${
-        isIntroComplete ? "opacity-1" : "opacity-0 pointer-events-none"
+      className={`fixed top-0 left-0 w-full z-[999] mix-blend-difference px-8 py-6 flex justify-between items-center text-white transition-opacity duration-700 ${
+        isIntroComplete ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >
       <MagneticLink>

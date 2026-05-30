@@ -35,7 +35,7 @@ export default function Footer() {
           <span className="text-sm font-bold uppercase tracking-widest">
             Special Thanks
           </span>
-          <h1 className="text-6xl md:text-9xl font-bold mt-2">DevbyShadow</h1>
+          <h1 className="text-2xl sm:text-5xl md:text-9xl font-bold mt-2">DevbyShadow</h1>
         </div>
         <div className="text-right">
           <span className="text-sm font-bold uppercase tracking-widest">

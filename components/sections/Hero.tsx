@@ -126,8 +126,6 @@ export default function Hero({ startIntro }: HeroProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const revealBgRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const progressInnerRef = useRef<HTMLDivElement>(null);
   const titleMakeRef = useRef<HTMLSpanElement>(null);
   const titleLastRef = useRef<HTMLSpanElement>(null);
   const topLabelRef = useRef<HTMLParagraphElement>(null);
@@ -203,10 +201,6 @@ export default function Hero({ startIntro }: HeroProps) {
         scale: 1,
         clipPath: getCardClip(),
       });
-      gsap.set([progressRef.current, progressInnerRef.current], {
-        scaleX: 0,
-        transformOrigin: "left center",
-      });
       gsap.set(scrollDownRef.current, {
         display: "none",
         opacity: 0.5,
@@ -214,15 +208,22 @@ export default function Hero({ startIntro }: HeroProps) {
 
       const initScrollAnimations = () => {
         const scrollCtx = gsap.context(() => {
+          let zSet = false;
           const tl = gsap.timeline({
             scrollTrigger: {
               id: "heroScroll",
               trigger: wrapper,
               start: "top top",
-              end: "+=150%",
+              end: "+=100%",
               pin: true,
               scrub: 0.28,
               invalidateOnRefresh: true,
+              onUpdate: (self) => {
+                if (!zSet && self.progress > 0.6 && wrapper) {
+                  wrapper.style.zIndex = "1";
+                  zSet = true;
+                }
+              },
             },
           });
 
@@ -270,15 +271,6 @@ export default function Hero({ startIntro }: HeroProps) {
       });
 
       tl.to(
-        progressRef.current,
-        {
-          scaleX: 1,
-          duration: 1.5,
-          ease: "power3.inOut",
-        },
-        0,
-      );
-      tl.to(
         bgWrapper,
         {
           clipPath: getCardClip(),
@@ -310,24 +302,6 @@ export default function Hero({ startIntro }: HeroProps) {
         {
           scale: 1,
           duration: 1.5,
-          ease: "hop",
-        },
-        2.4,
-      );
-      tl.to(
-        progressInnerRef.current,
-        {
-          scaleX: 1,
-          duration: 1.5,
-          ease: "hop",
-        },
-        2.4,
-      );
-      tl.to(
-        progressRef.current,
-        {
-          opacity: 0,
-          duration: 2,
           ease: "hop",
         },
         2.4,
@@ -393,10 +367,6 @@ export default function Hero({ startIntro }: HeroProps) {
           </p>
           <h1 ref={yearRef}>‘26</h1>
         </div>
-      </div>
-
-      <div ref={progressRef} className="progress-bar">
-        <div ref={progressInnerRef} className="progress" />
       </div>
     </section>
   );

@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="overflow-x-hidden">
       {/* 
         bg-[#0f0f0f] prevents white flash on load. 
         overflow-x-hidden prevents horizontal scroll from GSAP animations.

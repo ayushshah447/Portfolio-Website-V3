@@ -75,11 +75,11 @@ export default function Manifesto() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: slide,
-            start: "top top",
-            end: () => `+=${window.innerHeight * 2.5}`,
+            start: slideIndex === 0 ? "top top+=10vh" : "top top",
+            end: () => `+=${window.innerHeight * 1.2}`,
             pin: true,
             pinSpacing: true,
-            scrub: 0.18,
+            scrub: 0.08,
             id: `manifesto-slide-${slideIndex + 1}`,
           },
         });
@@ -89,10 +89,10 @@ export default function Manifesto() {
           {
             opacity: 1,
             backgroundColor: `rgba(${HIGHLIGHT}, 0)`,
-            duration: 0.72,
+            duration: 0.45,
             ease: "none",
             stagger: {
-              each: 0.045,
+              each: 0.03,
             },
           },
           0,
@@ -101,22 +101,22 @@ export default function Manifesto() {
           contents,
           {
             opacity: 1,
-            duration: 0.5,
+            duration: 0.3,
             ease: "none",
             stagger: {
-              each: 0.045,
+              each: 0.03,
             },
           },
-          0.08,
+          0.05,
         );
         tl.to(
           contents,
           {
             opacity: 0,
-            duration: 0.22,
+            duration: 0.15,
             ease: "sine.inOut",
             stagger: {
-              each: 0.072,
+              each: 0.05,
             },
           },
           1.05,
@@ -126,10 +126,10 @@ export default function Manifesto() {
           {
             opacity: 0,
             backgroundColor: `rgba(${HIGHLIGHT}, 1)`,
-            duration: 0.35,
+            duration: 0.2,
             ease: "sine.inOut",
             stagger: {
-              each: 0.072,
+              each: 0.05,
             },
           },
           1.05,
@@ -137,17 +137,17 @@ export default function Manifesto() {
       });
 
       previews.forEach((preview, index) => {
-        const spacer = section.querySelector<HTMLElement>(
-          `.manifesto__spacer[data-spacer="${index + 1}"]`,
+        const slide = section.querySelector<HTMLElement>(
+          `.manifesto__slide[data-slide="${index + 1}"]`,
         );
-        if (!spacer) return;
+        if (!slide) return;
 
         const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: spacer,
-            start: index === 0 ? "top 50%" : "top 105%",
-            end: "bottom top",
-            scrub: window.innerWidth <= 850 ? 0.04 : 0.08,
+            trigger: slide,
+            start: "top bottom",
+            end: "top top",
+            scrub: window.innerWidth <= 850 ? 0.02 : 0.04,
             id: `manifesto-preview-${index + 1}`,
           },
         });
@@ -164,15 +164,6 @@ export default function Manifesto() {
           },
         );
 
-        if (index < previews.length - 1) {
-          tl.to(preview, {
-            clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-            duration: 0.4,
-            delay: 0.6,
-            ease: "none",
-          });
-        }
-
         gsap.fromTo(
           preview.querySelector("img"),
           { scale: 1 },
@@ -180,10 +171,10 @@ export default function Manifesto() {
             scale: 1.05,
             ease: "none",
             scrollTrigger: {
-              trigger: spacer,
-              start: index === 0 ? "top bottom" : "top 105%",
-              end: "bottom top",
-              scrub: window.innerWidth <= 850 ? 0.28 : 1,
+              trigger: slide,
+              start: "top bottom",
+              end: "top top",
+              scrub: window.innerWidth <= 850 ? 0.08 : 0.15,
             },
           },
         );
@@ -192,16 +183,67 @@ export default function Manifesto() {
       ScrollTrigger.create({
         trigger: section,
         start: "top bottom",
+        end: "bottom top",
         onEnter: () =>
           gsap.to(".manifesto__previews", {
             opacity: 1,
             duration: 0.5,
             ease: "power2.out",
           }),
+        onLeave: () =>
+          gsap.to(".manifesto__previews", {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.in",
+          }),
+        onEnterBack: () =>
+          gsap.to(".manifesto__previews", {
+            opacity: 1,
+            duration: 0.3,
+            ease: "power2.out",
+          }),
+        onLeaveBack: () =>
+          gsap.to(".manifesto__previews", {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.in",
+          }),
       });
     }, section);
 
     return () => ctx.revert();
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const imgs = Array.from(section.querySelectorAll<HTMLImageElement>(".manifesto__preview img"));
+    if (imgs.length === 0) return;
+
+    const unloaded = imgs.filter((img) => !img.complete);
+    if (unloaded.length === 0) {
+      ScrollTrigger.refresh();
+      return;
+    }
+
+    let loaded = 0;
+    const onLoad = () => {
+      loaded++;
+      if (loaded === unloaded.length) ScrollTrigger.refresh();
+    };
+
+    unloaded.forEach((img) => {
+      img.addEventListener("load", onLoad);
+      img.addEventListener("error", onLoad);
+    });
+
+    return () => {
+      unloaded.forEach((img) => {
+        img.removeEventListener("load", onLoad);
+        img.removeEventListener("error", onLoad);
+      });
+    };
   }, []);
 
   return (
